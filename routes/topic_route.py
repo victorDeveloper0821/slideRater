@@ -1,3 +1,4 @@
+from flask import request
 from flask_restx import Resource, fields, Namespace
 
 api = Namespace('topics', description='Topics related operations')
@@ -11,7 +12,7 @@ topicMdl = api.model('topic', {
 })
 
 ## multiple topics list, and topic create
-@api.route('/topic')
+@api.route('/')
 class Topics(Resource): 
 
     @api.response(200, 'Success', [topicMdl])
@@ -26,7 +27,7 @@ class Topics(Resource):
         return {'message': 'Topic create success'}, 201
 
 # Pass id to routes    
-@api.route('/topic/<int:id>')
+@api.route('/<int:id>')
 class SingleTopic (Resource): 
 
     @api.response(200, 'Success', topicMdl)
