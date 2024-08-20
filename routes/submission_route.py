@@ -5,7 +5,7 @@ api = Namespace('submissions', description='Submission in Topics related operati
 
 mockSubmissions = []
 
-# 定義 Submission 的模型
+# submission API Model
 submissionMdl = api.model('Submission', {
     'UserID': fields.Integer(required=True, description='The ID of the user'),
     'TopicID': fields.Integer(required=True, description='The ID of the topic'),

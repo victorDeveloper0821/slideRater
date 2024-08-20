@@ -1,20 +1,24 @@
 from flask import Flask
-from configuration import swagger_config
-from flask_restx import Api, Namespace, Resource, fields
-from routes import topics_api, submissions_api
+from configuration import swagger_config, db_config
+from routes import addRoutes
+from database import init_extensions
 
-app = Flask(__name__)
-api = Api(app, **swagger_config)
+## initialize app instance
+def create_app (env_name):
+    # create flask api instance
+    app = Flask(__name__)
 
-
-@api.route('/hello')
-class HelloWorld(Resource):
-    def get(self):
-        return 'hello'
+    # fetch config from env name
+    app.config.from_object(db_config[env_name])
     
-# 將 Controller 的邏輯加到 API 中
-api.add_namespace(topics_api)
-api.add_namespace(submissions_api)
+    # define the api endpoints and swagger
+    addRoutes(app, swagger_config)
+    
+    # config db
+    init_extensions(app=app)
+
+    return app
 
 if __name__ == '__main__':
+    app = create_app('dev')
     app.run(host='127.0.0.1', port=51800, debug=True)
