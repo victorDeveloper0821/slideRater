@@ -1,7 +1,7 @@
 from flask import Flask
 from configuration import swagger_config, db_config
 from routes import addRoutes
-from database import init_extensions
+from database import init_extensions, db
 
 ## initialize app instance
 def create_app (env_name):
@@ -19,6 +19,14 @@ def create_app (env_name):
 
     return app
 
+
+
 if __name__ == '__main__':
-    app = create_app('dev')
-    app.run(host='127.0.0.1', port=51800, debug=True)
+    try:
+        app = create_app('dev')
+        with app.app_context():
+            db.create_all()
+        print("Database tables created successfully.")
+        app.run(host='127.0.0.1', port=51800, debug=True)
+    except Exception as e:
+        print(f"Error: {e}")
