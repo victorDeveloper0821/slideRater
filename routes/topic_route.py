@@ -1,10 +1,17 @@
 from flask import request
 from flask_restx import Resource, fields, Namespace
+from database import db
+from models import Topic
+from datetime import time
 
 api = Namespace('topics', description='Topics related operations')
 
 mockTopic = []
 
+class TimeFormat(fields.Raw):
+    def format(self, value):
+        return time.strftime(value, "%H:%M")
+    
 ## Topic API domains
 topicRequest = api.model('topic', {
     'UserID': fields.String(required=True, description="User ID"),
@@ -15,23 +22,41 @@ topicRequest = api.model('topic', {
 topicResponse = api.model('topic_response', {
     'Title': fields.String(required=True, description='Title of your topic'),
     'Descriptions': fields.String(required=True, description='descriptions of your topic'),
-    'Create_at': fields.DateTime(required=True, descriptions="date time the topic is created"),
-    'Update_at': fields.DateTime(required=True, descriptions="date time the topic is updated")
+    'Create_at': TimeFormat(required=True, descriptions="date time the topic is created", default='HH:MM'),
+    'Update_at': TimeFormat(required=True, descriptions="date time the topic is updated", default='HH:MM')
 })
+
 
 ## multiple topics list, and topic create
 @api.route('/')
 class Topics(Resource): 
 
+
     @api.response(200, 'Success', [topicResponse])
     def get(self): 
+        topics = db.session.query(Topic).all()
+
+        # 將每個 Topic 物件轉換為字典格式，並格式化時間
+        mockTopic = list(map(lambda t: {
+            'Title': t.title,
+            'Descriptions': t.description,
+            'Create_at': t.created_at.strftime('%H:%M') if t.created_at else None,
+            'Update_at': t.updated_at.strftime('%H:%M') if t.updated_at else None
+        }, topics))
+
         return mockTopic, 200
     
     @api.expect(topicRequest)
     @api.response(201, 'Topic create success')
     def post(self): 
         newTopic = request.json
-        mockTopic.append(newTopic)
+
+        topicToAdd = Topic(member_id=newTopic['UserID'], \
+                        title=newTopic['Title'], \
+                        description=newTopic['Descriptions'])
+        
+        db.session.add(topicToAdd)
+        db.session.commit()
         return {'message': 'Topic create success'}, 201
 
 # Pass id to routes    
