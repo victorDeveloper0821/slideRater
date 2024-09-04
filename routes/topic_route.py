@@ -6,20 +6,28 @@ api = Namespace('topics', description='Topics related operations')
 mockTopic = []
 
 ## Topic API domains
-topicMdl = api.model('topic', {
+topicRequest = api.model('topic', {
+    'UserID': fields.String(required=True, description="User ID"),
     'Title': fields.String(required=True, description='Title of your topic'),
     'Descriptions': fields.String(required=True, description='descriptions of your topic')
+})
+
+topicResponse = api.model('topic_response', {
+    'Title': fields.String(required=True, description='Title of your topic'),
+    'Descriptions': fields.String(required=True, description='descriptions of your topic'),
+    'Create_at': fields.DateTime(required=True, descriptions="date time the topic is created"),
+    'Update_at': fields.DateTime(required=True, descriptions="date time the topic is updated")
 })
 
 ## multiple topics list, and topic create
 @api.route('/')
 class Topics(Resource): 
 
-    @api.response(200, 'Success', [topicMdl])
+    @api.response(200, 'Success', [topicResponse])
     def get(self): 
         return mockTopic, 200
     
-    @api.expect(topicMdl)
+    @api.expect(topicRequest)
     @api.response(201, 'Topic create success')
     def post(self): 
         newTopic = request.json
@@ -30,7 +38,7 @@ class Topics(Resource):
 @api.route('/<int:id>')
 class SingleTopic (Resource): 
 
-    @api.response(200, 'Success', topicMdl)
+    @api.response(200, 'Success', topicResponse)
     @api.response(404, 'Topic not found')
     def get(self, id): 
         if id < len(mockTopic):
@@ -38,8 +46,8 @@ class SingleTopic (Resource):
         else: 
             return {'message': 'topic not found'}, 404
     
-    @api.expect(topicMdl)
-    @api.response(200, 'Topic updated successfully')
+    @api.expect(topicRequest)
+    @api.response(200, 'Topic updated successfully',topicResponse)
     @api.response(404, 'Topic not found')
     def put(self, id):
         if id < len(mockTopic):
