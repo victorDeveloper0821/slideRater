@@ -1,5 +1,5 @@
 from flask import Flask
-from configuration import swagger_config, db_config
+from configuration import swagger_config, global_config
 from routes import addRoutes
 from database import init_extensions, db
 from models import member, topic, submission
@@ -11,7 +11,9 @@ def create_app (env_name):
     app = Flask(__name__)
 
     # fetch config from env name
-    app.config.from_object(db_config[env_name])
+    app.config.from_object(global_config[env_name])
+    app.config["UPLOAD_FOLDER"] = "/Users/victortsai/uploads/slide_ranker/"
+    app.config["ALLOWED_EXTENSIONS"] = {'ppt', 'pptx'}
     
     # define the api endpoints and swagger
     addRoutes(app, swagger_config)
