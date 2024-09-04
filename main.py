@@ -30,9 +30,11 @@ if __name__ == '__main__':
         app = create_app('dev')
         with app.app_context():
             # Check current directory and remove existing db if needed
-            print(f"Current directory: {os.getcwd()}")
+            
+            """print(f"Current directory: {os.getcwd()}")
             if os.path.exists('instance/slide_rater.db'):
                 os.remove('instance/slide_rater.db')
+                """
             db.create_all()
             print("Database tables created successfully.")
         app.run(host='127.0.0.1', port=51800, debug=True)
