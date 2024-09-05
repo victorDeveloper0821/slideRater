@@ -2,11 +2,9 @@ from flask import request
 from flask_restx import Resource, fields, Namespace
 from database import db
 from models import Topic
-from datetime import time
+from datetime import time, datetime
 
 api = Namespace('topics', description='Topics related operations')
-
-mockTopic = []
 
 class TimeFormat(fields.Raw):
     def format(self, value):
@@ -66,8 +64,16 @@ class SingleTopic (Resource):
     @api.response(200, 'Success', topicResponse)
     @api.response(404, 'Topic not found')
     def get(self, id): 
-        if id < len(mockTopic):
-            return mockTopic[id], 200
+        
+        oneTopic = Topic.query.filter_by(id = id).first()
+        if oneTopic :
+            response = {
+                'Title': oneTopic.title,
+                'Descriptions': oneTopic.description,
+                'Create_at': oneTopic.created_at.strftime('%H:%M') if oneTopic.created_at else None,
+                'Update_at': oneTopic.updated_at.strftime('%H:%M') if oneTopic.updated_at else None
+            }
+            return response, 200
         else: 
             return {'message': 'topic not found'}, 404
     
@@ -75,9 +81,14 @@ class SingleTopic (Resource):
     @api.response(200, 'Topic updated successfully',topicResponse)
     @api.response(404, 'Topic not found')
     def put(self, id):
-        if id < len(mockTopic):
+        oneTopic = Topic.query.filter_by(id = id).first()
+
+        if oneTopic:
             modified_topic = request.json
-            mockTopic[id] = modified_topic
+            oneTopic.title = modified_topic['Title']
+            oneTopic.description = modified_topic['Descriptions']
+            oneTopic.updated_at = datetime.utcnow()
+            db.session.commit()
             return {'message': 'Topic updated successfully'}, 200 
         else: 
             return {'message': 'Topic not found'}, 404
@@ -85,8 +96,10 @@ class SingleTopic (Resource):
     @api.response(200, 'Topic deleted successfully')
     @api.response(404, 'Topic not found')
     def delete(self, id):
-        if id < len(mockTopic):
-            mockTopic.pop(id)
+        topicDelete = Topic.query.filter_by(id = id).delete()
+        
+        if topicDelete > 0:
+            db.session.commit()
             return {'message': 'Topic deleted successfully'}, 200
         else:
             return {'message': 'Topic not found'}, 404

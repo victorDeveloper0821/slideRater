@@ -2,6 +2,7 @@ from flask import request, current_app
 from flask_restx import Resource, fields, Namespace, reqparse
 from werkzeug.datastructures import FileStorage
 import os 
+from models import Topic, Submission
 
 api = Namespace('submissions', description='Submission in Topics related operations', path='/topics')
 
