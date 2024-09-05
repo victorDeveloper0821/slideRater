@@ -12,8 +12,6 @@ def create_app (env_name):
 
     # fetch config from env name
     app.config.from_object(global_config[env_name])
-    app.config["UPLOAD_FOLDER"] = "/Users/victortsai/uploads/slide_ranker/"
-    app.config["ALLOWED_EXTENSIONS"] = {'ppt', 'pptx'}
     
     # define the api endpoints and swagger
     addRoutes(app, swagger_config)
