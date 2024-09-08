@@ -3,6 +3,7 @@ from configuration import swagger_config, global_config
 from routes import addRoutes
 from database import init_extensions, db
 from models import member, topic, submission
+from error import register_error_handlers
 import os
 
 ## initialize app instance
@@ -18,6 +19,9 @@ def create_app (env_name):
     
     # config db
     init_extensions(app=app)
+    
+    # Define error handler here
+    register_error_handlers(app=app)
 
     return app
 
