@@ -1,4 +1,4 @@
-from datetime import datetime
+import time
 from database import db
 
 class Member(db.Model):
@@ -10,5 +10,5 @@ class Member(db.Model):
     last_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.BigInteger, default=lambda: int(time.time()), nullable=False)
+    updated_at = db.Column(db.BigInteger, default=lambda: int(time.time()), onupdate=lambda: int(time.time()), nullable=False)
