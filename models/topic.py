@@ -12,3 +12,4 @@ class Topic(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     member = db.relationship('Member', backref=db.backref('topics', lazy=True))
+    submissions = db.relationship('Submission', backref='topic', lazy='select')
