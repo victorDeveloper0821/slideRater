@@ -3,7 +3,3 @@ flask-sqlalchemy
 flask-migrate
 psycopg2-binary
 flask-restx
-numpy
-nltk
-sklearn
-pandas
