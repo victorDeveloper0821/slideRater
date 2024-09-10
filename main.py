@@ -4,6 +4,7 @@ from routes import addRoutes
 from database import init_extensions, db
 from models import member, topic, submission
 from error import register_error_handlers
+from schedular import setup_scheduler
 import os
 
 ## initialize app instance
@@ -30,15 +31,17 @@ def create_app (env_name):
 if __name__ == '__main__':
     try:
         app = create_app('dev')
+        # 設置調度器
+        scheduler = setup_scheduler()
+        
         with app.app_context():
             # Check current directory and remove existing db if needed
-            
-            """print(f"Current directory: {os.getcwd()}")
-            if os.path.exists('instance/slide_rater.db'):
-                os.remove('instance/slide_rater.db')
-                """
             db.create_all()
             print("Database tables created successfully.")
+            
+            scheduler.start()
+            print("Scheduler 已啟動")
+        
         app.run(host='127.0.0.1', port=51800, debug=True)
     except Exception as e:
         print(f"Error: {e}")
