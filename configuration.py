@@ -16,6 +16,7 @@ class Config(object):
     SECRET_KEY = os.getenv('SECRET_KEY', 'slide_rater_secret_key')
     UPLOAD_FOLDER="/Users/victortsai/uploads/slide_ranker/"
     ALLOWED_EXTENSIONS = {'ppt', 'pptx'}
+    SCHEDULER_API_ENABLED = True
 
 class DevelopmentConfig(Config):
     """Development env"""
