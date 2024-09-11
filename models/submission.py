@@ -11,3 +11,8 @@ class Submission(db.Model):
     created_at = db.Column(db.BigInteger, default=lambda: int(time.time()), nullable=False)
     updated_at = db.Column(db.BigInteger, default=lambda: int(time.time()), onupdate=lambda: int(time.time()), nullable=False)
     status = db.Column(db.Integer)
+
+    # Relation to Topic
+    topic = db.relationship('Topic', back_populates='submission', lazy='dynamic')
+    # Relationship to slides
+    slides = db.relationship('Slide', back_populates='submission', lazy='select')  # 添加反向關聯
