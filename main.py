@@ -2,7 +2,7 @@ from flask import Flask
 from configuration import swagger_config, global_config
 from routes import addRoutes
 from database import init_extensions, db
-from models import member, topic, submission
+from models import member, topic, submission, Slide, BulletPoint
 from error import register_error_handlers
 from schedular import setup_scheduler
 import os

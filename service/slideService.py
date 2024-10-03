@@ -1,47 +1,53 @@
-## import slides presentation
 from pptx import Presentation
+from database import db
+from models import Slide, BulletPoint, Submission
 
-def extract_pptx_content(pptx_path):
-    # 加載PPT
+## need to be checked
+def extract_pptx_content(pptx_path, submission_id):
+    """extract texts in slides into data table"""
     prs = Presentation(pptx_path)
-    ppt_data = []
-
-    # 遍歷每一張幻燈片
+    
     for slide_number, slide in enumerate(prs.slides, start=1):
-        slide_data = {
-            'slide_number': slide_number,
-            'title': "",
-            'footer': "",
-            'content': [],
-            'bullet_points': []
-        }
+        # Create a new Slide entry
+        slide_data = Slide(
+            submission_id=submission_id,
+            slide_number=slide_number,
+            title="",
+            footer="",
+            content=""
+        )
 
-        # 提取每張幻燈片的主題
         for shape in slide.shapes:
-            if shape.has_text_frame:
-                # 提取標題
-                if shape == slide.shapes.title:
-                    slide_data['title'] = shape.text
+            # Check if shape has text frame
+            if not shape.has_text_frame:
+                continue
 
-                # 提取頁腳 (根據假設頁腳有特殊標記或位置)
-                if "Footer" in shape.name:
-                    slide_data['footer'] = shape.text
+            # Extract title
+            if shape == slide.shapes.title:
+                slide_data.title = shape.text
 
-                # 遍歷每個 TextFrame 的段落
-                for paragraph in shape.text_frame.paragraphs:
-                    # 判斷是否為 bullet point
-                    if paragraph.level > 0:
-                        slide_data['bullet_points'].append({
-                            'level': paragraph.level,
-                            'text': paragraph.text
-                        })
-                    else:
-                        # 普通文本
-                        slide_data['content'].append(paragraph.text)
+            # Extract footer (assuming footers are identified by name)
+            if "Footer" in shape.name:
+                slide_data.footer = shape.text
 
-        ppt_data.append(slide_data)
-
-    return ppt_data
+            # Extract content and bullet points
+            for paragraph in shape.text_frame.paragraphs:
+                # If it's a bullet point (i.e., has a level)
+                if paragraph.level > 0:
+                    bullet_point = BulletPoint(
+                        level=paragraph.level,
+                        text=paragraph.text
+                    )
+                    slide_data.bullet_points.append(bullet_point)
+                else:
+                    # Otherwise, it's general content
+                    slide_data.content += paragraph.text + "\n"
+        
+        # Add the Slide (and its bullet points) to the database session
+        db.session.add(slide_data)
+    
+    # Commit all the changes to the database
+    db.session.commit()
 
 
 if __name__ == '__main__':

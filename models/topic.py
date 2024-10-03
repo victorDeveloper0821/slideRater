@@ -12,4 +12,4 @@ class Topic(db.Model):
     updated_at = db.Column(db.BigInteger, default=lambda: int(time.time()), onupdate=lambda: int(time.time()), nullable=False)
 
     member = db.relationship('Member', backref=db.backref('topics', lazy=True))
-    submissions = db.relationship('Submission', backref='topic', lazy='select')
+    submissions = db.relationship('Submission', back_populates='topic', lazy='select')

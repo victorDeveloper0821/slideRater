@@ -3,6 +3,7 @@ from flask_restx import Resource, fields, Namespace, reqparse
 from werkzeug.datastructures import FileStorage
 import os 
 from models import Topic, Submission
+from service import slideService
 from sqlalchemy.orm import subqueryload
 from database import db
 
@@ -78,11 +79,14 @@ class Submissions(Resource):
         # 添加新提交
         new_submission = Submission(
             topic_id=topic_id,
-            slides=uploaded_file.filename,
+            filename=uploaded_file.filename,
             status=1,  # 默认设置 status
         )
         db.session.add(new_submission)
         db.session.commit()
+        
+        slideService.extract_pptx_content(file_path, new_submission.id)
+
 
         return {'message': 'Submission created successfully'}, 201
 

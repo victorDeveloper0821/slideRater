@@ -8,7 +8,13 @@ api = Namespace('topics', description='Topics related operations')
 
 class TimeFormat(fields.Raw):
     def format(self, value):
-        return time.strftime(value, "%H:%M")
+        # 確保 value 是 datetime 對象，若是時間戳，可用 datetime.fromtimestamp 轉換
+#        if isinstance(value, (int, float)):
+            # 將 Unix 時間戳轉換為 datetime 對象
+        value = datetime.fromtimestamp(value)
+        
+        # 格式化為 yyyy/MM/dd HH:mm:ss
+        return value.strftime("%Y/%m/%d %H:%M:%S")
     
 ## Topic API domains
 topicRequest = api.model('topic', {
@@ -20,8 +26,8 @@ topicRequest = api.model('topic', {
 topicResponse = api.model('topic_response', {
     'Title': fields.String(required=True, description='Title of your topic'),
     'Descriptions': fields.String(required=True, description='descriptions of your topic'),
-    'Create_at': TimeFormat(required=True, descriptions="date time the topic is created", default='HH:MM'),
-    'Update_at': TimeFormat(required=True, descriptions="date time the topic is updated", default='HH:MM')
+    'Create_at': TimeFormat(readonly=True, required=True, descriptions="date time the topic is created", default='HH:MM'),
+    'Update_at': TimeFormat(readonly=True, required=True, descriptions="date time the topic is updated", default='HH:MM')
 })
 
 
@@ -38,8 +44,8 @@ class Topics(Resource):
         mockTopic = list(map(lambda t: {
             'Title': t.title,
             'Descriptions': t.description,
-            'Create_at': t.created_at.strftime('%H:%M') if t.created_at else None,
-            'Update_at': t.updated_at.strftime('%H:%M') if t.updated_at else None
+            'Create_at': t.created_at,# if t.created_at else None,  # 直接用 Unix timestamp
+            'Update_at': t.updated_at #if t.updated_at else None  # 直接用 Unix timestamp
         }, topics))
 
         return mockTopic, 200
@@ -70,8 +76,8 @@ class SingleTopic (Resource):
             response = {
                 'Title': oneTopic.title,
                 'Descriptions': oneTopic.description,
-                'Create_at': oneTopic.created_at.strftime('%H:%M') if oneTopic.created_at else None,
-                'Update_at': oneTopic.updated_at.strftime('%H:%M') if oneTopic.updated_at else None
+                'Create_at': oneTopic.created_at, #if oneTopic.created_at else None,  # 直接用 Unix timestamp
+                'Update_at': oneTopic.updated_at #if oneTopic.updated_at else None  # 直接用 Unix timestamp
             }
             return response, 200
         else: 
@@ -87,7 +93,7 @@ class SingleTopic (Resource):
             modified_topic = request.json
             oneTopic.title = modified_topic['Title']
             oneTopic.description = modified_topic['Descriptions']
-            oneTopic.updated_at = datetime.utcnow()
+#            oneTopic.updated_at = .utcnow()
             db.session.commit()
             return {'message': 'Topic updated successfully'}, 200 
         else: 
